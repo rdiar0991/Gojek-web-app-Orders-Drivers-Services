@@ -1,8 +1,8 @@
 class DriversController < ApplicationController
   before_action :logged_in_driver, only: [:edit]
   before_action :correct_driver, only: [:edit]
-  before_action :set_driver, only: [:show, :edit]
-  before_action :driver_params, only: [:create]
+  before_action :set_driver, only: [:show, :edit, :update]
+  before_action :driver_params, only: [:create, :update]
 
   def new
     @driver = Driver.new
@@ -23,6 +23,15 @@ class DriversController < ApplicationController
   end
 
   def edit
+  end
+
+  def update
+    if @driver.update_attributes(driver_params)
+      flash[:success] = "Profile updated."
+      redirect_to @driver
+    else
+      render :edit
+    end
   end
 
   private

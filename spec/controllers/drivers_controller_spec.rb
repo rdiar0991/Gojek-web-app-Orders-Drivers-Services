@@ -100,4 +100,38 @@ RSpec.describe DriversController, type: :controller do
       end
     end
   end
+
+  describe "PATCH #update" do
+    before :each do
+      @driver = create(:driver, name: "anugrah")
+    end
+
+    context "with valid attributes" do
+      before :each do
+        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan") }
+      end
+      it "locates the requested driver to @driver" do
+        expect(assigns[:driver]).to eq(@driver)
+      end
+      it "updates the driver's attributes in the database" do
+        @driver.reload
+        expect(@driver.name).to match(/marzan/)
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@driver)
+      end
+    end
+    context "with invalid attributes" do
+      before :each do
+        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan", email: nil) }
+      end
+      it "does not updates the driver in the database" do
+        @driver.reload
+        expect(@driver.name).not_to match(/marzan/)
+      end
+      it "re-renders the :edit template" do
+        expect(response).to render_template(:edit)
+      end
+    end
+  end
 end

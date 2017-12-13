@@ -29,16 +29,17 @@ RSpec.describe DriversController, type: :controller do
 
   describe "POST #create" do
     context "with valid attributes" do
-      before :each do
-
-      end
       it "saves new driver in the database" do
         expect{
           post :create, params: { driver: attributes_for(:driver) }
         }.to change(Driver, :count).by(1)
       end
 
-      pending "sets a new session for driver login automatically"
+      it "sets new sessions for driver login automatically" do
+        post :create, params: { driver: attributes_for(:driver) }
+        expect(session[:user_id]).not_to eq(nil)
+        expect(session[:role]).not_to eq(nil)
+      end
 
       it "sets gopay_balance balance default 0.0" do
         post :create, params: { driver: attributes_for(:driver) }

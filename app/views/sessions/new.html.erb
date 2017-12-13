@@ -10,6 +10,9 @@
       <%= f.label :password %>
       <%= f.password_field :password, class: "form-control" %>
 
+      <%= f.label :login_as %>
+      <%= f.select :role, options_for_select([["User", "user"],["Driver", "driver"]]) %>
+
       <%= f.submit "Log in", class: "btn btn-success" %>
     <% end %>
     <p></p>

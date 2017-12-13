@@ -45,9 +45,10 @@ RSpec.describe UsersController, type: :controller do
         expect(assigns[:user].gopay_balance).to eq(0.0)
       end
 
-      it "sets a new session for user login automatically" do
+      it "sets new sessions for user login automatically" do
         post :create, params: { user: attributes_for(:user) }
         expect(session[:user_id]).not_to eq(nil)
+        expect(session[:role]).not_to eq(nil)
       end
 
       it "redirects to the show user page" do

@@ -9,6 +9,7 @@ class DriversController < ApplicationController
   def create
     @driver = Driver.new(driver_params)
     if @driver.save
+      log_in @driver
       flash[:success] = "Welcome to the Go-JEK Web App."
       redirect_to @driver
     else

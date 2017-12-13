@@ -1,10 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe User, type: :model do
-
+RSpec.describe Driver, type: :model do
   # valid factory
   it "has a valid factory" do
-    expect(build(:user)).to be_valid
+    expect(build(:driver)).to be_valid
   end
 
   # Validation tests
@@ -20,22 +19,24 @@ RSpec.describe User, type: :model do
   it { should validate_numericality_of(:phone) }
   it { should validate_length_of(:phone).is_at_least(11) }
   it { should validate_length_of(:phone).is_at_most(12) }
+  it { should validate_presence_of(:go_service) }
   it { should validate_presence_of(:gopay_balance).on(:update) }
-  it { should validate_numericality_of(:gopay_balance).on(:update) }
+  it { should validate_numericality_of(:gopay_balance).is_greater_than_or_equal_to(0.0).on(:update) }
+  it { should validate_presence_of(:go_service).on(:update) }
 
   # validation of email format
   describe "Email format Validation" do
     it "is valid email format" do
-      user = build(:user, email: "sundaralinus@gmail.com")
-      expect(user).to be_valid
+      driver = build(:driver, email: "marzan@gmail.com")
+      expect(driver).to be_valid
     end
     it "is invalid email format" do
-      user = build(:user, email: "sundaralinus@gmail,com")
-      expect(user).not_to be_valid
+      driver = build(:driver, email: "marzan@gmail,com")
+      expect(driver).not_to be_valid
     end
     it "downcases an email before saving" do
-      user = create(:user, email: "sunDaRaLinuS@gMail.CoM")
-      expect(user.email).to match(/sundaralinus@gmail.com/)
+      driver = create(:driver, email: "MarZan@gMail.CoM")
+      expect(driver.email).to match(/marzan@gmail.com/)
     end
   end
 end

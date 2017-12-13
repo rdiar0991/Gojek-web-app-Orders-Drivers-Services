@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update, :topup_gopay, :update_gopay]
-  before_action :correct_user, only: [:edit, :update, :topup_gopay, :update_gopay]
+  before_action :logged_in_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
+  before_action :correct_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
   before_action :set_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
   before_action :user_params, only: [:create, :update, :update_gopay]
 

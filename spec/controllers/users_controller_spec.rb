@@ -20,15 +20,39 @@ RSpec.describe UsersController, type: :controller do
   describe "GET #show" do
     before :each do
       @user = create(:user)
+      @another_user = create(:user)
+    end
+    context "with a correct logged-in user" do
+      before :each do
+        log_in_as(@user)
+        get :show, params: { id: @user.id }
+      end
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+      it "shows the right user's information as who has requested" do
+        expect(assigns[:user]).to eq(@user)
+      end
+      it "renders the :show template" do
+        expect(response).to render_template(:show)
+      end
     end
 
-    it "returns http success" do
-      get :show, params: { id: @user.id }
-      expect(response).to have_http_status(:success)
+    context "with different logged-in user" do
+      before :each do
+        log_in_as(@another_user)
+        get :show, params: { id: @user.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@another_user)
+      end
     end
-    it "renders the :show template" do
-      get :show, params: { id: @user.id }
-      expect(response).to render_template(:show)
+
+    context "with non-logged in user" do
+      it "redirects to the login page" do
+        get :show, params: { id: @user.id }
+        expect(response).to redirect_to(login_path)
+      end
     end
   end
 

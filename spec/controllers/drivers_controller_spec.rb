@@ -63,4 +63,41 @@ RSpec.describe DriversController, type: :controller do
       end
     end
   end
+
+  describe "GET #edit" do
+    before :each do
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+    end
+
+    context "with authorized logged-in driver" do
+      before :each do
+        log_in_as(@driver)
+        get :edit, params: { id: @driver.id }
+      end
+      it "locates the requested driver to @driver" do
+        expect(assigns[:driver]).to eq(@driver)
+      end
+      it "renders the :edit template" do
+        expect(response).to render_template(:edit)
+      end
+    end
+
+    context "non-authorized logged-in driver" do
+      before :each do
+        log_in_as(@another_driver)
+        get :edit, params: { id: @driver.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@another_driver)
+      end
+    end
+
+    context "with non-authorized and non-logged in driver" do
+      it "redirects to the login page" do
+        get :edit, params: { id: @driver.id }
+        expect(response).to redirect_to(login_path)
+      end
+    end
+  end
 end

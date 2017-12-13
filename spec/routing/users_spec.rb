@@ -1,9 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe 'Users Routing', type: :routing do
-  describe "GET /signup" do
+  describe "GET /users/signup" do
     it "routes to users#new" do
-      expect(get("/signup")).to route_to("users#new")
+      expect(get("/users/signup")).to route_to("users#new")
+    end
+  end
+
+  describe "POST /users/signup" do
+    it "routes to users#create" do
+      expect(post("/users/signup")).to route_to("users#create")
     end
   end
 

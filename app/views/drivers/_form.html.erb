@@ -1,5 +1,5 @@
-<%= form_for(@user) do |f| %>
-  <%= render 'shared/user_error_messages', object: @user %>
+<%= form_for(@driver) do |f| %>
+  <%= render 'shared/driver_error_messages', object: @driver %>
 
   <%= f.label :name %>
   <%= f.text_field :name, class: 'form-control' %>
@@ -15,6 +15,9 @@
 
   <%= f.label :password_confirmation %>
   <%= f.password_field :password_confirmation, class: 'form-control' %>
+
+  <%= f.label :go_service %>
+  <%= f.select :go_service, Driver.go_services.keys, prompt: "Select a service", class: 'form-control' %>
 
   <%= f.submit yield(:button_text), class: "btn btn-success" %>
 <% end %>

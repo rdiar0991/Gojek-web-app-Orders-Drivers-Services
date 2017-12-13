@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe UsersController, type: :controller do
 
   describe "GET #new" do
-    it "assigns a new Food to @food" do
+    it "assigns a new User to @user" do
       get :new
       expect(assigns(:user)).to be_a_new(User)
     end

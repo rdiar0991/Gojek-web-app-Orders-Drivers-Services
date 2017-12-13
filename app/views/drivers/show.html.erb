@@ -1,0 +1,23 @@
+<%= provide(:title, @driver.name) %>
+<div class="row">
+  <aside class="col-md-4">
+    <section class="user_info">
+      <h1>
+        <%= gravatar_for @driver %>
+        <%= @driver.name %>
+      </h1>
+      <p>
+        Email: <%= @driver.email %>
+      </p>
+      <p>
+        Phone: <%= @driver.phone %>
+      </p>
+      <p>
+        Gopay balance: <%= @driver.gopay_balance %>
+      </p>
+      <p>
+        Go-Service: <%= @driver.go_service %>
+      </p>
+    </section>
+  </aside>
+</div>

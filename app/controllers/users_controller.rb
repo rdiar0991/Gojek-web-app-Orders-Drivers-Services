@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update]
-  before_action :correct_user, only: [:edit, :update]
+  before_action :logged_in_user, only: [:edit, :update, :topup_gopay, :update_gopay]
+  before_action :correct_user, only: [:edit, :update, :topup_gopay, :update_gopay]
   before_action :set_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
   before_action :user_params, only: [:create, :update, :update_gopay]
 
@@ -74,13 +74,13 @@ class UsersController < ApplicationController
   def logged_in_user
     unless logged_in?
       store_location
-      flash[:danger] = "Please log in."
-      redirect_to root_path
+      flash[:danger] = "Please log in to continue."
+      redirect_to login_path
     end
   end
 
   def correct_user
     @user = User.find(params[:id])
-    redirect_to root_path unless current_user?(@user)
+    redirect_to current_user unless current_user?(@user)
   end
 end

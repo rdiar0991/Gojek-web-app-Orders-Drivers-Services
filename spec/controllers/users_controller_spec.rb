@@ -93,8 +93,8 @@ RSpec.describe UsersController, type: :controller do
     context "with non-logged in user" do
       before { get :edit, params: { id: @user } }
 
-      it "redirects to the homepage" do
-        expect(response).to redirect_to(root_path)
+      it "redirects to the login page" do
+        expect(response).to redirect_to(login_path)
       end
     end
 
@@ -103,8 +103,8 @@ RSpec.describe UsersController, type: :controller do
         log_in_as(@another_user)
         get :edit, params: { id: @user }
       end
-      it "redirects to the homepage" do
-        expect(response).to redirect_to(root_path)
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@another_user)
       end
     end
   end
@@ -115,8 +115,8 @@ RSpec.describe UsersController, type: :controller do
         @non_logged_in_user = create(:user)
         patch :update, params: { id: @non_logged_in_user.id, user: attributes_for(:user, name: "Anugrah memang", password: "", password_confirmation: "") }
       end
-      it "redirects to the homepage" do
-        expect(response).to redirect_to(root_path)
+      it "redirects to the login page" do
+        expect(response).to redirect_to(login_path)
       end
     end
 
@@ -166,27 +166,100 @@ RSpec.describe UsersController, type: :controller do
           log_in_as(@another_user)
           patch :update, params: { id: @user.id, user: attributes_for(:user, name: "Anugrah memang", password: "", password_confirmation: "") }
         end
-        it "redirects to the homepage" do
-          expect(response).to redirect_to(root_path)
+        it "redirects to the profile page" do
+          expect(response).to redirect_to(@another_user)
         end
       end
     end
   end
 
   describe "GET #topup_gopay" do
-    before :each do
-      @user = create(:user)
-      get :topup_gopay, params: { id: @user.id }
+    before { @user = create(:user) }
+
+    context "with non-logged in user" do
+      before :each do
+        get :topup_gopay, params: { id: @user.id }
+      end
+      it "redirects to the login page" do
+        expect(response).to redirect_to(login_path)
+      end
     end
-    it "renders the :topup_gopay template" do
-      expect(response).to render_template(:topup_gopay)
+
+    context "with logged-in user" do
+      before :each do
+        log_in_as(@user)
+        get :topup_gopay, params: { id: @user.id }
+      end
+      it "renders the :topup_gopay template" do
+        expect(response).to render_template(:topup_gopay)
+      end
+      it "locates the requested user to @user" do
+        expect(assigns[:user]).to eq(@user)
+      end
     end
-    it "locates the requested user to @user" do
-      expect(assigns[:user]).to eq(@user)
+
+    context "with different logged-in user" do
+      before :each do
+        @another_user = create(:user)
+        log_in_as(@another_user)
+        get :topup_gopay, params: { id: @user.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@another_user)
+      end
     end
   end
 
   describe "PATCH #update_gopay" do
-    
+    before :each do
+      @user = create(:user, gopay_balance: 50000)
+    end
+    context "with non-logged in user" do
+      before :each do
+        @non_logged_in_user = create(:user)
+        patch :update_gopay, params: { id: @non_logged_in_user.id, user: attributes_for(:user, gopay_balance: 50000) }
+      end
+      it "redirects to the login page" do
+        expect(response).to redirect_to(login_path)
+      end
+    end
+
+    context "with correct logged-in user" do
+      before :each do
+        log_in_as(@user)
+        patch :update_gopay, params: { id: @user.id, user: attributes_for(:user, gopay_balance: 25000) }
+      end
+      context "with valid attributes" do
+        it "sums current gopay balance with topup amount" do
+          @user.reload
+          expect(@user.gopay_balance).to eq(75000.0)
+        end
+        it "redirects to the profile page" do
+          expect(response).to redirect_to(@user)
+        end
+      end
+      context "with invalid attributes" do
+        it "(non-numeric) does not updates the gopay balance" do
+          expect{
+            patch :update_gopay, params: { id: @user.id, user: attributes_for(:user, gopay_balance: "25ribu") }
+          }.not_to change(@user, :gopay_balance)
+        end
+        it "(minus-numeric) does not updates the gopay balance" do
+          expect{
+            patch :update_gopay, params: { id: @user.id, user: attributes_for(:user, gopay_balance: -50000) }
+          }.not_to change(@user, :gopay_balance)
+        end
+      end
+    end
+    context "with different logged-in user" do
+      before :each do
+        @another_user = create(:user)
+        log_in_as(@another_user)
+        patch :update_gopay, params: { id: @user.id, user: attributes_for(:user, gopay_balance: 50000) }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to(@another_user)
+      end
+    end
   end
 end

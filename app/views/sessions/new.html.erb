@@ -12,6 +12,11 @@
 
       <%= f.submit "Log in", class: "btn btn-success" %>
     <% end %>
-    <p>New user? <%= link_to "Sign up now!", signup_path %></p>
+    <p></p>
+    <p>New to Go-JEK Web App?</p>
+    <ul>
+      <li class="text-info"><%= link_to "Sign up as user now!", user_signup_path %></li>
+      <li class="text-success"><%= link_to "Sign up as driver now!", driver_signup_path %></li>
+    </ul>
   </div>
 </div>

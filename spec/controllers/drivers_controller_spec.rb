@@ -4,16 +4,40 @@ RSpec.describe DriversController, type: :controller do
   describe "GET #show" do
     before :each do
       @driver = create(:driver)
-      get :show, params: { id: @driver.id }
+      @another_driver = create(:driver)
     end
-    it "returns http success" do
-      expect(response).to have_http_status(:success)
+
+    context "with logged-in and authorized driver" do
+      before :each do
+        log_in_as @driver
+        get :show, params: { id: @driver.id }
+      end
+      it "returns http success" do
+        expect(response).to have_http_status(:success)
+      end
+      it "shows the requested driver" do
+        expect(assigns[:driver]).to eq(@driver)
+      end
+      it "renders the :show template" do
+        expect(response).to render_template(:show)
+      end
     end
-    it "shows the correct driver" do
-      expect(assigns[:driver]).to eq(@driver)
+    context "with logged-in and un-authorized driver" do
+      before :each do
+        log_in_as @another_driver
+        get :show, params: { id: @driver.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_driver
+      end
     end
-    it "renders the :show template" do
-      expect(response).to render_template(:show)
+    context "with non-logged in and un-authorized driver" do
+      before :each do
+        get :show, params: { id: @driver.id }
+      end
+      it "redirects to the login page" do
+        expect(response).to redirect_to login_path
+      end
     end
   end
 
@@ -70,7 +94,7 @@ RSpec.describe DriversController, type: :controller do
       @another_driver = create(:driver)
     end
 
-    context "with authorized logged-in driver" do
+    context "with logged-in and authorized driver" do
       before :each do
         log_in_as(@driver)
         get :edit, params: { id: @driver.id }
@@ -83,7 +107,7 @@ RSpec.describe DriversController, type: :controller do
       end
     end
 
-    context "non-authorized logged-in driver" do
+    context "logged-in and un-authorized driver" do
       before :each do
         log_in_as(@another_driver)
         get :edit, params: { id: @driver.id }
@@ -93,7 +117,7 @@ RSpec.describe DriversController, type: :controller do
       end
     end
 
-    context "with non-authorized and non-logged in driver" do
+    context "with non-logged and un-authorized in driver" do
       it "redirects to the login page" do
         get :edit, params: { id: @driver.id }
         expect(response).to redirect_to(login_path)
@@ -104,34 +128,55 @@ RSpec.describe DriversController, type: :controller do
   describe "PATCH #update" do
     before :each do
       @driver = create(:driver, name: "anugrah")
+      @another_driver = create(:driver)
     end
 
-    context "with valid attributes" do
-      before :each do
-        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan") }
+    context "with logged-in and authorized driver" do
+      context "with valid attributes" do
+        before :each do
+          log_in_as @driver
+          patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan") }
+        end
+        it "locates the requested driver to @driver" do
+          expect(assigns[:driver]).to eq(@driver)
+        end
+        it "updates the driver's attributes in the database" do
+          @driver.reload
+          expect(@driver.name).to match(/marzan/)
+        end
+        it "redirects to the profile page" do
+          expect(response).to redirect_to(@driver)
+        end
       end
-      it "locates the requested driver to @driver" do
-        expect(assigns[:driver]).to eq(@driver)
-      end
-      it "updates the driver's attributes in the database" do
-        @driver.reload
-        expect(@driver.name).to match(/marzan/)
-      end
-      it "redirects to the profile page" do
-        expect(response).to redirect_to(@driver)
+      context "with invalid attributes" do
+        before :each do
+          log_in_as @driver
+          patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan", email: nil) }
+        end
+        it "does not updates the driver in the database" do
+          @driver.reload
+          expect(@driver.name).not_to match(/marzan/)
+        end
+        it "re-renders the :edit template" do
+          expect(response).to render_template(:edit)
+        end
       end
     end
-    context "with invalid attributes" do
+    context "with logged-in and un-authorized driver" do
       before :each do
-        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan", email: nil) }
+        log_in_as @another_driver
+        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan") }
       end
-      it "does not updates the driver in the database" do
-        @driver.reload
-        expect(@driver.name).not_to match(/marzan/)
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_driver
       end
-      it "re-renders the :edit template" do
-        expect(response).to render_template(:edit)
+    end
+    context "with non-logged in and un-authorized driver" do
+      it "redirects to the login page" do
+        patch :update, params: { id: @driver.id, driver: attributes_for(:driver, name: "marzan") }
+        expect(response).to redirect_to login_path
       end
     end
   end
+
 end

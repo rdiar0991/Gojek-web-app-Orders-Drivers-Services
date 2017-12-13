@@ -1,6 +1,6 @@
 class DriversController < ApplicationController
-  before_action :logged_in_driver, only: [:edit]
-  before_action :correct_driver, only: [:edit]
+  before_action :logged_in_driver, only: [:show, :edit, :update]
+  before_action :correct_driver, only: [:show, :edit, :update]
   before_action :set_driver, only: [:show, :edit, :update]
   before_action :driver_params, only: [:create, :update]
 

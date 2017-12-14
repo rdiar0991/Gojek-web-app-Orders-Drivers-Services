@@ -5,7 +5,7 @@
     <p class="text-info">Current balance: <%= @user.gopay_balance %></p>
     <span class="label label-info"></span>
     <%= form_for(@user, url: update_gopay_path) do |f| %>
-      <%= render 'shared/error_messages', object: @user %>
+      <%= render 'shared/user_error_messages', object: @user %>
       <%= f.label :topup_amount %>
       <%= f.text_field :gopay_balance, value: '0', class: 'form-control' %>
 

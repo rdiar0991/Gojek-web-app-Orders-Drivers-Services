@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171213042737) do
+ActiveRecord::Schema.define(version: 20171214033029) do
 
   create_table "drivers", force: :cascade do |t|
     t.string "name"
@@ -18,11 +18,12 @@ ActiveRecord::Schema.define(version: 20171213042737) do
     t.string "phone"
     t.string "password_digest"
     t.decimal "gopay_balance", precision: 8, scale: 2, default: "0.0", null: false
-    t.boolean "bid_status", default: false
-    t.string "current_location"
+    t.string "bid_status", default: "N/A"
+    t.text "current_location", default: "N/A"
     t.string "go_service"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "current_coord", default: "N/A"
     t.index ["email"], name: "index_drivers_on_email"
   end
 

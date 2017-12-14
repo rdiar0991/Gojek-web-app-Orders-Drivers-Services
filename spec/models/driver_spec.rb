@@ -22,7 +22,10 @@ RSpec.describe Driver, type: :model do
   it { should validate_presence_of(:go_service) }
   it { should validate_presence_of(:gopay_balance).on(:update) }
   it { should validate_numericality_of(:gopay_balance).is_greater_than_or_equal_to(0.0).on(:update) }
-  it { should validate_presence_of(:go_service).on(:update) }
+  it { should validate_presence_of(:go_service) }
+  it { should validate_presence_of(:current_location).on(:update) }
+  it { should validate_presence_of(:bid_status).on(:update) }
+  it { should validate_presence_of(:current_coord).on(:update) }
 
   # validation of email format
   describe "Email format Validation" do

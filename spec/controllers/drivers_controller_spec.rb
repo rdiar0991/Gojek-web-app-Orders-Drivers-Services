@@ -179,4 +179,98 @@ RSpec.describe DriversController, type: :controller do
     end
   end
 
+  describe "GET #edit_location" do
+    before :each do
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+    end
+
+    context "with logged-in and authorized driver" do
+      before :each do
+        log_in_as @driver
+        get :edit_location, params: { id: @driver.id }
+      end
+      it "locates the requested driver to @driver" do
+        expect(assigns[:driver]).to eq(@driver)
+      end
+      it "renders the :edit_location template" do
+        expect(response).to render_template :edit_location
+      end
+    end
+    context "with logged-in and un-authorized driver" do
+      before :each do
+        log_in_as @another_driver
+        get :edit_location, params: { id: @driver.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_driver
+      end
+    end
+    context "with non-logged in and un-authorized driver" do
+      it "redirects to the login page" do
+        get :edit_location, params: { id: @driver.id }
+        expect(response).to redirect_to login_path
+      end
+    end
+  end
+
+  describe "PATCH #update_location" do
+    before :each do
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+    end
+
+    context "with logged-in and authorized driver" do
+      before :each do
+        log_in_as @driver
+      end
+      context "with valid :current_location" do
+        before :each do
+          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Sarinah, Jakarta") }
+        end
+        it "locates the requested @driver" do
+
+        end
+        it "changes the driver's current_location attributes in the database" do
+          @driver.reload
+          expect(@driver.current_location).to match(/Sarinah, Jakarta/)
+        end
+        it "changes the driver's current_coord attributes in the database" do
+          @driver.reload
+          expect(@driver.current_coord).to match(/-6.1877157, 106.8238402/)
+        end
+        it "redirects to the profile page" do
+          expect(response).to redirect_to @driver
+        end
+      end
+      context "with invalid :current_location" do
+        before :each do
+          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Lokasi yang tak diriundukan...Lul") }
+        end
+        it "does not update current_location in the database" do
+          @driver.reload
+          expect(@driver.current_location).not_to match(/Lokasi yang tak diriundukan...Lul/)
+        end
+        it "re-renders the :edit_location template" do
+          expect(response).to render_template :edit_location
+        end
+      end
+    end
+    context "with logged-in and un-authorized driver" do
+      before :each do
+        log_in_as @another_driver
+        patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Sarinah, Jakarta") }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_driver
+      end
+    end
+    context "with non-logged in and un-authorized driver" do
+      it "redirects to the login page" do
+        patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Sarinah, Jakarta") }
+        expect(response).to redirect_to login_path
+      end
+    end
+  end
+
 end

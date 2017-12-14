@@ -1,8 +1,8 @@
 class DriversController < ApplicationController
-  before_action :logged_in_driver, only: [:show, :edit, :update]
-  before_action :correct_driver, only: [:show, :edit, :update]
-  before_action :set_driver, only: [:show, :edit, :update]
-  before_action :driver_params, only: [:create, :update]
+  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location]
+  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location]
+  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location]
+  before_action :driver_params, only: [:create, :update, :update_location]
 
   def new
     @driver = Driver.new
@@ -34,6 +34,25 @@ class DriversController < ApplicationController
     end
   end
 
+  def edit_location
+  end
+
+  def update_location
+    if @driver.update_attributes(driver_params)
+      flash[:success] = "Your location was successfully updated."
+      redirect_to @driver
+    else
+      @driver.reload
+      render :edit_location
+    end
+  end
+
+  def edit_bid
+  end
+
+  def update_bid
+  end
+
   private
 
   def set_driver
@@ -41,7 +60,7 @@ class DriversController < ApplicationController
   end
 
   def driver_params
-    params.require(:driver).permit(:name, :email, :phone, :password, :password_confirmation, :go_service)
+    params.require(:driver).permit(:name, :email, :phone, :password, :password_confirmation, :go_service, :current_location, :bid_status)
   end
 
   def logged_in_driver

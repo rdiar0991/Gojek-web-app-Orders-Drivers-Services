@@ -1,0 +1,15 @@
+<%= provide(:title, "Set Current Location") %>
+<h1>Set your Current Location</h1>
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <p class="text-info">Current location: <%= @driver.current_location %></p>
+    <span class="label label-info"></span>
+    <%= form_for(@driver, url: update_location_path) do |f| %>
+      <%= render 'shared/driver_error_messages', object: @driver %>
+      <%= f.label :new_location %>
+      <%= f.text_field :current_location, value: '', placeholder: 'eg: place, street, mall, etc.', class: 'form-control' %>
+
+      <%= f.submit "Set My Location", class: "btn btn-success" %>
+    <% end %>
+  </div>
+</div>

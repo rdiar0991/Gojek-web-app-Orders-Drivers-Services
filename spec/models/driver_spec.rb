@@ -27,6 +27,9 @@ RSpec.describe Driver, type: :model do
   it { should validate_presence_of(:bid_status).on(:update) }
   it { should validate_presence_of(:current_coord).on(:update) }
 
+  # Association tests
+  it { should have_many(:orders).dependent(:destroy) }
+
   # validation of email format
   describe "Email format Validation" do
     it "is valid email format" do

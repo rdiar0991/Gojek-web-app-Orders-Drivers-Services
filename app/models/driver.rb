@@ -1,4 +1,5 @@
 class Driver < ApplicationRecord
+  has_many :orders, dependent: :destroy
 
   before_save :downcase_email
   before_validation :ensure_location_has_coordinates, if: :current_location_changed?

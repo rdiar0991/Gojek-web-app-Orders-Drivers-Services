@@ -23,6 +23,9 @@ RSpec.describe User, type: :model do
   it { should validate_presence_of(:gopay_balance).on(:update) }
   it { should validate_numericality_of(:gopay_balance).on(:update) }
 
+  # Association tests
+  it { should have_many(:orders).dependent(:destroy) }
+
   # validation of email format
   describe "Email format Validation" do
     it "is valid email format" do

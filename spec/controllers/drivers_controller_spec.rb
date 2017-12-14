@@ -273,4 +273,94 @@ RSpec.describe DriversController, type: :controller do
     end
   end
 
+  describe "GET #edit_bid" do
+    before :each do
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+    end
+
+    context "with logged-in and authorized driver" do
+      before :each do
+        log_in_as @driver
+        get :edit_bid, params: { id: @driver.id }
+      end
+      it "locates requested driver to @driver" do
+        expect(assigns[:driver]).to eq(@driver)
+      end
+      it "renders the :edit_bid template" do
+        expect(response).to render_template :edit_bid
+      end
+    end
+
+    context "with logged-in and un-authorized driver" do
+      before :each do
+        log_in_as @another_driver
+        get :edit_bid, params: { id: @driver.id }
+      end
+      it "redirects to the driver's profile page" do
+        expect(response).to redirect_to @another_driver
+      end
+    end
+
+    context "with non-logged in and un-authorized driver" do
+      it "redirects to the login page" do
+        get :edit_bid, params: { id: @driver.id }
+        expect(response).to redirect_to login_path
+      end
+    end
+  end
+
+  describe "PATCH #update_bid" do
+    before :each do
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+    end
+
+    context "with logged-in and authorized driver" do
+      before :each do
+        log_in_as @driver
+      end
+      context "with valid attributes" do
+        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online") } }
+        it "updates the driver's bid_status in the database" do
+          @driver.reload
+          expect(@driver.bid_status).to match(/Online/)
+        end
+        it "redirects to the driver profile page" do
+          expect(response).to redirect_to @driver
+        end
+        it "shows the success flash message" do
+          expect(flash[:success]).to match(/Your bid status was successfully updated./)
+        end
+      end
+      context "with invalid attributes" do
+        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Nothing") } }
+        it "does not update the driver's bid status in the database" do
+          @driver.reload
+          expect(@driver.bid_status).not_to match(/Nothing/)
+        end
+        it "has validation errors message" do
+          expect(assigns[:driver].errors.count).not_to eq(0)
+        end
+        it "re-renders the :edit_bid template" do
+          expect(response).to render_template :edit_bid
+        end
+      end
+    end
+    context "with logged-in and un-authorized driver" do
+      before :each do
+        log_in_as @another_driver
+        patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online") }
+      end
+      it "redirects to that driver's profile page" do
+        expect(response).to redirect_to @another_driver
+      end
+    end
+    context "with non-logged in and un-authorized driver" do
+      it "redirects to the login page" do
+        patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online") }
+        expect(response).to redirect_to login_path
+      end
+    end
+  end
 end

@@ -1,8 +1,8 @@
 class DriversController < ApplicationController
-  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location]
-  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location]
-  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location]
-  before_action :driver_params, only: [:create, :update, :update_location]
+  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
+  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
+  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
+  before_action :driver_params, only: [:create, :update, :update_location, :update_bid]
 
   def new
     @driver = Driver.new
@@ -51,6 +51,13 @@ class DriversController < ApplicationController
   end
 
   def update_bid
+    if @driver.update_attributes(driver_params)
+      flash[:success] = "Your bid status was successfully updated."
+      redirect_to @driver
+    else
+      @driver.reload
+      render :edit_bid
+    end
   end
 
   private

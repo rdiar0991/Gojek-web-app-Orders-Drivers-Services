@@ -1,21 +1,21 @@
 FactoryBot.define do
   factory :order do
-    origin { Faker::Address.street_address }
-    destination { Faker::Address.street_address }
+    origin "Wisma Naelah"
+    destination "Kolla Space Sabang"
     distance 6
     payment_type "Cash"
-    status "Complete"
+    status "On the way"
     price 12000.0
-    user_id nil
-    driver_id nil
+    service_type "Go-Ride"
   end
 
   factory :invalid_order, parent: :order do
-    origin { Faker::Address.street_address }
-    destination { Faker::Address.street_address }
-    distance 6
-    payment_type "Cash"
-    status "Complete"
+    origin "Wisma Naelah"
+    destination "Kolla Space Sabang"
+    distance nil
+    payment_type nil
+    status nil
+    service_type nil
     price nil
     user_id nil
     driver_id nil

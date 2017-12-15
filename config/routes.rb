@@ -29,6 +29,13 @@ Rails.application.routes.draw do
   get '/drivers/:id/bid-job', to: 'drivers#edit_bid', as: 'edit_bid'
   patch '/drivers/:id/bid-job', to: 'drivers#update_bid', as: 'update_bid'
 
+  # User new Order
+  get '/users/:user_id/orders/new', to: 'orders#new', as: 'new_order'
+  get '/users/:user_id/orders/create', to: 'orders#create', as: 'create_order'
+  get '/users/:user_id/orders/confirm', to: 'orders#confirm_order', as: 'confirm_order'
+  post '/users/:user_id/orders/confirm', to: 'orders#commit_order', as: 'commit_order'
+
   resources :users
   resources :drivers
+  # resources :orders
 end

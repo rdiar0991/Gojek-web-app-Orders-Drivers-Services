@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
   def new
+    redirect_back_or root_path if logged_in?
   end
 
   def create

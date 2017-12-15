@@ -1,0 +1,24 @@
+<%= provide(:title, 'New Order') %>
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <h1>New Order</h1>
+    <%= form_for(@order, url: create_order_path, method: :get) do |f| %>
+      <%= render 'shared/order_error_messages', object: @order %>
+
+      <%= f.label :pickup_address %>
+      <%= f.text_field :origin, class: 'form-control' %>
+
+      <%= f.label :destination_address %>
+      <%= f.text_field :destination, class: 'form-control' %>
+
+      <%= f.label :service_type %>
+      <%= f.select :service_type, options_for_select(Driver.go_services.keys), prompt: 'Select a service type' %>
+
+      <%= f.label :payment_type %>
+      <%= f.select :payment_type, options_for_select(Order.payment_types.keys), prompt: 'Select a payment type' %>
+
+      <%= f.submit "Go-Order", class: "btn btn-success" %>
+    <% end %>
+
+  </div>
+</div>

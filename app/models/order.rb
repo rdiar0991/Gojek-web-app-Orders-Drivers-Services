@@ -1,5 +1,5 @@
 class Order < ApplicationRecord
-  belongs_to :user, optional: true
+  belongs_to :user
   belongs_to :driver, optional: true
 
   enum payment_types: {
@@ -18,5 +18,6 @@ class Order < ApplicationRecord
   validates :distance, numericality: true
   validates :price, numericality: true
   validates :payment_type, inclusion: payment_types.keys, presence: true
+  validates :service_type, inclusion: Driver.go_services.keys, presence: true
   validates :status, inclusion: order_statuses.keys
 end

@@ -363,4 +363,62 @@ RSpec.describe DriversController, type: :controller do
       end
     end
   end
+
+  describe "GET #current_job" do
+    before :each do
+      @user = create(:user)
+      @driver = create(:driver)
+      @job = create(:order, user_id: @user.id, driver_id: @driver.id)
+      log_in_as @driver
+      get :current_job, params: { id: @driver.id }
+    end
+    it "assigns driver to @driver" do
+      expect(assigns[:driver]).to eq(@driver)
+    end
+    it "assigns name of user to @name_of_user" do
+      expect(assigns[:name_of_user]).to eq(@user.name)
+    end
+    it "assigns the in-complete to @job" do
+      expect(assigns[:job].status).to match(/On the way/)
+    end
+    it "renders the :current_job template" do
+      expect(response).to render_template :current_job
+    end
+  end
+
+  describe "PATCH #update_current_job_path" do
+    before :each do
+      @user = create(:user)
+      @driver = create(:driver)
+      log_in_as @driver
+      @job = create(:order, user_id: @user.id, driver_id: @driver.id)
+    end
+
+    context "with valid attributes" do
+      before :each do
+        patch :update_current_job, params: { id: @driver.id, order: {status: 'Complete'} }
+      end
+      it "updates the job's status as 'Complete'" do
+        @job.reload
+        expect(@job.status).to match(/Complete/)
+      end
+      it "redirects to the :current_job template" do
+        expect(response).to redirect_to current_job_path(@driver)
+      end
+    end
+
+    context "with param status not equals 'Complete'" do
+      before :each do
+        patch :update_current_job, params: { id: @driver.id, order: {status: 'On the way'} }
+      end
+      it "does not updates the job status in the database" do
+        @job.reload
+        expect(@job.status).not_to match(/Complete/)
+      end
+      it "redirects to the :current_job template" do
+        expect(response).to redirect_to current_job_path(@driver)
+      end
+    end
+  end
+
 end

@@ -91,7 +91,7 @@ class UsersController < ApplicationController
   end
 
   def set_current_order
-    @order = @user.orders.where("status != 'Complete'").last
-    @driver_id, @driver_name = Driver.pluck(:id, :name).select { |id, name| id == @order.driver_id }.flatten
+    @order = @user.orders.find_by(status: "On the way")
+    @driver_id, @driver_name = Driver.pluck(:id, :name).select { |id, name| id == @order.driver_id }.flatten unless @order.nil?
   end
 end

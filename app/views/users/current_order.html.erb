@@ -1,28 +1,14 @@
 <%= provide(:title, "Current Order") %>
 <div class="row">
-  <h1>Your Current Order</h1>
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <th>Go Service</th>
-        <th>Driver</th>
-        <th>Origin</th>
-        <th>Destination</th>
-        <th>Distance</th>
-        <th>Price</th>
-        <th>Payment Type</th>
-        <th>Order status</th>
-      </thead>
-      <tbody>
-        <td><%= @order.service_type %></td>
-        <td><%= @driver_name %></td>
-        <td><%= @order.origin %></td>
-        <td><%= @order.destination %></td>
-        <td><%= @order.distance %></td>
-        <td><%= @order.price %></td>
-        <td><%= @order.payment_type %></td>
-        <td><%= @order.status %></td>
-      </tbody>
-    </table>
+
+<% if @order.nil? %>
+  <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">Info</div>
+      <div class="panel-body"><p>You have no in-complete order. Or, you can check your order history <a href="#">here</a>.</p></div>
+    </div>
   </div>
+    <% else %>
+      <%= render 'current_order_info' %>
+    <% end %>
 </div>

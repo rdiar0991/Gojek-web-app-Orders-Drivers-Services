@@ -1,0 +1,28 @@
+<div class="panel panel-info">
+  <div class="panel-heading"><h1>Your Current Job</h1></div>
+  <div class="panel-body">
+    <dl class="dl-horizontal">
+      <dt>User:</dt>
+      <dd><%= @name_of_user %></dd>
+      <dt>Pickup Address:</dt>
+      <dd><%= @job.origin %></dd>
+      <dt>Destination Address:</dt>
+      <dd><%= @job.destination %></dd>
+      <dt>Distance:</dt>
+      <dd><%= @job.distance %> km</dd>
+      <dt>Price:</dt>
+      <dd><%= @job.price %></dd>
+      <dt>Payment type:</dt>
+      <dd><%= @job.payment_type %></dd>
+      <dt>Trip Status:</dt>
+      <dd><span class="bg-primary"><%= @job.status %></span></dd>
+    </dl>
+    <p class="text-warning">Click this button after you and user have arrived at the destination place.</p>
+    <%= form_for(@job, url: update_current_job_path, method: :patch) do |f| %>
+
+      <%= f.hidden_field :status, value: "Complete" %>
+
+      <%= f.submit "Job done", class: "btn btn-info" %>
+    <% end %>
+  </div>
+</div>

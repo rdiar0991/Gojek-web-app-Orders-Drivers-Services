@@ -1,8 +1,10 @@
 class DriversController < ApplicationController
-  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
-  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
-  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid]
+  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
+  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
+  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
   before_action :driver_params, only: [:create, :update, :update_location, :update_bid]
+  before_action :set_current_job, only: [:current_job, :update_current_job]
+  before_action :ensure_params_contains_complete, only: [:update_current_job]
 
   def new
     @driver = Driver.new
@@ -60,6 +62,21 @@ class DriversController < ApplicationController
     end
   end
 
+  def current_job
+  end
+
+  def update_current_job
+    @job.status = params[:order][:status]
+    if @job.save
+      flash[:success] = "Your job has successfully marked as 'Complete'. Thank you."
+      redirect_to current_job_path
+    else
+      flash[:danger] = "We are sorry, something went wrong while updating your job status."
+      redirect_to current_job_path
+    end
+
+  end
+
   private
 
   def set_driver
@@ -82,4 +99,14 @@ class DriversController < ApplicationController
     @driver = Driver.find(params[:id])
     redirect_to current_user unless current_user?(@driver)
   end
+
+  def set_current_job
+    @job = @driver.orders.find_by(status: "On the way")
+    @user_id, @name_of_user = User.pluck(:id, :name).select { |id, name| id == @job.user_id }.flatten unless @job.nil?
+  end
+
+  def ensure_params_contains_complete
+    redirect_to current_job_path(@driver) unless params[:order][:status] == "Complete"
+  end
+
 end

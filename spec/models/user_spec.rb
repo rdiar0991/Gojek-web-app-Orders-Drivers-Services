@@ -19,7 +19,7 @@ RSpec.describe User, type: :model do
   it { should validate_uniqueness_of(:phone) }
   it { should validate_numericality_of(:phone) }
   it { should validate_length_of(:phone).is_at_least(11) }
-  it { should validate_length_of(:phone).is_at_most(12) }
+  it { should validate_length_of(:phone).is_at_most(13) }
   it { should validate_presence_of(:gopay_balance).on(:update) }
   it { should validate_numericality_of(:gopay_balance).on(:update) }
 

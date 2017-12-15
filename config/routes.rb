@@ -35,6 +35,10 @@ Rails.application.routes.draw do
   get '/users/:user_id/orders/confirm', to: 'orders#confirm_order', as: 'confirm_order'
   post '/users/:user_id/orders/confirm', to: 'orders#commit_order', as: 'commit_order'
 
+  # Check status of Order
+  get '/drivers/:id/jobs/on-process', to: 'drivers#current_job', as: 'current_job'
+  get '/users/:id/orders/on-process', to: 'users#current_order', as: 'current_order'
+
   resources :users
   resources :drivers
   # resources :orders

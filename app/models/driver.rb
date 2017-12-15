@@ -6,14 +6,14 @@ class Driver < ApplicationRecord
 
   has_secure_password
 
-  enum go_services: {
-    "Go-Ride" => "go_ride",
-    "Go-Car" => "go_car"
+  enum go_service: {
+    "Go-Ride" => 0,
+    "Go-Car" => 1
   }
 
-  enum bid_statuses: {
-    "Online" => "online",
-    "Busy" => "busy"
+  enum bid_status: {
+    "Busy" => 0,
+    "Online" => 1
   }
 
   validates :password, presence: true, length: { minimum: 8 }, allow_nil: true

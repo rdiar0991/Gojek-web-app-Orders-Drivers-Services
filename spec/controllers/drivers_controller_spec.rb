@@ -334,10 +334,10 @@ RSpec.describe DriversController, type: :controller do
         end
       end
       context "with invalid attributes" do
-        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Nothing") } }
+        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:invalid_driver, bid_status: "Online") } }
         it "does not update the driver's bid status in the database" do
           @driver.reload
-          expect(@driver.bid_status).not_to match(/Nothing/)
+          expect(@driver.bid_status).not_to match(/Dude/)
         end
         it "has validation errors message" do
           expect(assigns[:driver].errors.count).not_to eq(0)

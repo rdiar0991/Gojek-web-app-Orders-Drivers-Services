@@ -48,4 +48,10 @@ RSpec.describe 'Users Routing', type: :routing do
       expect(post: "/users/1/orders/confirm").to route_to("orders#commit_order", user_id: '1')
     end
   end
+
+  describe "GET /users/:id/orders/on-process" do
+    it "routes to orders#current_order" do
+      expect(get("/users/1/orders/on-process")).to route_to("users#current_order", id: '1')
+    end
+  end
 end

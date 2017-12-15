@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
-  before_action :correct_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
+  before_action :logged_in_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order]
+  before_action :correct_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order]
   before_action :set_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
   before_action :user_params, only: [:create, :update, :update_gopay]
+  before_action :set_current_order, only: [:current_order]
 
   # GET /users/new
   # or
@@ -61,6 +62,10 @@ class UsersController < ApplicationController
     end
   end
 
+  # GET /users/:user_id/orders/:order_id/on-process
+  def current_order
+  end
+
   private
 
   def set_user
@@ -80,7 +85,13 @@ class UsersController < ApplicationController
   end
 
   def correct_user
-    @user = User.find(params[:id])
+    key_find_id = params[:id].nil? ? params[:user_id] : params[:id]
+    @user = User.find(key_find_id)
     redirect_to current_user unless current_user?(@user)
+  end
+
+  def set_current_order
+    @order = @user.orders.where("status != 'Complete'").last
+    @driver_id, @driver_name = Driver.pluck(:id, :name).select { |id, name| id == @order.driver_id }.flatten
   end
 end

@@ -1,0 +1,28 @@
+<%= provide(:title, "Current Order") %>
+<div class="row">
+  <h1>Your Current Order</h1>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <th>Go Service</th>
+        <th>Driver</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Distance</th>
+        <th>Price</th>
+        <th>Payment Type</th>
+        <th>Order status</th>
+      </thead>
+      <tbody>
+        <td><%= @order.service_type %></td>
+        <td><%= @driver_name %></td>
+        <td><%= @order.origin %></td>
+        <td><%= @order.destination %></td>
+        <td><%= @order.distance %></td>
+        <td><%= @order.price %></td>
+        <td><%= @order.payment_type %></td>
+        <td><%= @order.status %></td>
+      </tbody>
+    </table>
+  </div>
+</div>

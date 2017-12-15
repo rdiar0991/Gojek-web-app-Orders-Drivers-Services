@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171214084634) do
+ActiveRecord::Schema.define(version: 20171215030323) do
 
   create_table "drivers", force: :cascade do |t|
     t.string "name"
@@ -18,9 +18,9 @@ ActiveRecord::Schema.define(version: 20171214084634) do
     t.string "phone"
     t.string "password_digest"
     t.decimal "gopay_balance", precision: 8, scale: 2, default: "0.0", null: false
-    t.string "bid_status", default: "N/A"
+    t.integer "bid_status", default: 0
     t.text "current_location", default: "N/A"
-    t.string "go_service"
+    t.integer "go_service"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "current_coord", default: "N/A"
@@ -31,8 +31,8 @@ ActiveRecord::Schema.define(version: 20171214084634) do
     t.string "origin"
     t.string "destination"
     t.float "distance"
-    t.string "payment_type"
-    t.string "status"
+    t.integer "payment_type"
+    t.integer "status"
     t.integer "user_id"
     t.integer "driver_id"
     t.datetime "created_at", null: false

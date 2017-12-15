@@ -11,9 +11,10 @@ FactoryBot.define do
   factory :invalid_driver, parent: :driver do
     name nil
     email nil
-    password "short"
-    password_confirmation "short"
+    password nil
+    password_confirmation nil
     phone nil
     go_service nil
+    bid_status nil
   end
 end

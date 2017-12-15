@@ -287,4 +287,22 @@ RSpec.describe UsersController, type: :controller do
       end
     end
   end
+
+  describe "GET #current_order" do
+    before :each do
+      @user = create(:user)
+      log_in_as @user
+      @order = create(:order, user_id: @user.id)
+      get :current_order, params: { id: @user.id }
+    end
+    it "assigns the user to @user" do
+      expect(assigns[:user]).to eq(@user)
+    end
+    it "assigns the un-complete order to @order" do
+      expect(assigns[:order]).to eq(@order)
+    end
+    it "renders the :current_order template" do
+      expect(response).to render_template :current_order
+    end
+  end
 end

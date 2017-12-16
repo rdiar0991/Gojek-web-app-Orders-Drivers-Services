@@ -67,7 +67,12 @@ class DriversController < ApplicationController
 
   def update_current_job
     @job.status = params[:order][:status]
-    if @job.save
+    @driver = Driver.find_by(id: @job.driver_id)
+    @driver.bid_status = "Online"
+    @driver.current_location = @job.destination
+    @driver.current_coord = gmaps_geocode(@job.destination).join(", ")
+
+    if @job.save && @driver.save
       flash[:success] = "Your job has successfully marked as 'Complete'. Thank you."
       redirect_to current_job_path
     else

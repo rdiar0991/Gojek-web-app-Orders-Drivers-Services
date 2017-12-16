@@ -32,11 +32,29 @@ class OrdersController < ApplicationController
 
   def commit_order
     @order = Order.new(order_params)
-    @order.driver_id = Driver.find_by(id: rand(1..Driver.count)).id # Random
-    @order.status = "On the way"
+    @order.status = "Looking for driver"
     @order.user_id = session[:user_id]
-    if @order.save
-      flash[:success] = "The driver is on the way, please wait."
+
+    # Todo: Implement to ActiveJob
+    @origin_coordinates = gmaps_geocode(@order.origin)
+    @online_drivers = fetch_online_drivers(@order.service_type)
+    @driver_around_users = drivers_around(@online_drivers, @origin_coordinates)
+    @picked_driver_id = lucky_driver(@driver_around_users)   # ntar ganti
+    @picked_driver = Driver.find_by(id: @picked_driver_id)
+    @order.driver_id = @picked_driver.id
+    @picked_driver.bid_status = "Busy"
+    @order.status = "On the way"
+
+    if @order.payment_type == "GoPay"
+      @user = User.find_by(id: @order.user_id)
+      @user.gopay_balance -= @order.price
+      @user.save
+      @picked_driver.gopay_balance += @order.price
+    end
+    # end of ActiveJob
+
+    if @order.save && @picked_driver.save
+      flash[:success] = "Finding the nearest driver, please wait."
       redirect_to current_order_path(current_user)
     else
       flash[:danger] = "Whoops! Something, went wrong. #{@order.errors.messages}"

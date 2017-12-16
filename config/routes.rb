@@ -42,6 +42,12 @@ Rails.application.routes.draw do
   get '/drivers/:id/jobs/on-process', to: 'drivers#current_job', as: 'current_job'
   patch '/drivers/:id/jobs/on-process', to: 'drivers#update_current_job', as: 'update_current_job'
 
+  # Order History
+  get '/users/:id/orders', to: 'users#orders_history', as: 'orders_history'
+
+  # Job History
+  get '/drivers/:id/jobs', to: 'drivers#jobs_history', as: 'jobs_history'
+
   resources :users
   resources :drivers
   # resources :orders

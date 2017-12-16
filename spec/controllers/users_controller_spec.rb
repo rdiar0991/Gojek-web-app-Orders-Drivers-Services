@@ -305,4 +305,39 @@ RSpec.describe UsersController, type: :controller do
       expect(response).to render_template :current_order
     end
   end
+
+  describe "GET #orders_history" do
+    before :each do
+      @user = create(:user)
+      @another_user = create(:user)
+      @driver = create(:driver)
+      @order1 = create(:order, user_id: @user.id, status: "Complete", driver_id: @driver.id)
+      @order2 = create(:order, user_id: @user.id, status: "Complete", driver_id: @driver.id)
+      @order3 = create(:order, user_id: @user.id, driver_id: @driver.id)
+      @order4 = create(:order, user_id: @another_user.id, driver_id: @driver.id)
+    end
+
+    context "with authorized user" do
+      before :each do
+        log_in_as @user
+        get :orders_history, params: { id: @user.id }
+      end
+      it "collects all Complete orders to @orders" do
+        expect(assigns[:user_orders]).to match_array([@order1, @order2])
+      end
+      it "renders the :orders_history template" do
+        expect(response).to render_template :orders_history
+      end
+    end
+
+    context "with unauthorized user" do
+      before :each do
+        log_in_as @another_user
+        get :orders_history, params: { id: @user.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_user
+      end
+    end
+  end
 end

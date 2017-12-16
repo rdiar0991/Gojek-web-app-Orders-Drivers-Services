@@ -19,7 +19,7 @@ class OrdersController < ApplicationController
     @order.distance = gmaps_distance(distance_matrix)
     @order.price = est_price(@order)
     @order.status = "Looking for driver"
-    if @order.valid? && logged_in?
+    if logged_in? && @order.valid?
       render :confirm_order
     else
       render :new
@@ -32,12 +32,12 @@ class OrdersController < ApplicationController
 
   def commit_order
     @order = Order.new(order_params)
-    @order.driver_id = 1
+    @order.driver_id = Driver.find_by(id: rand(1..Driver.count)).id # Random
     @order.status = "On the way"
     @order.user_id = session[:user_id]
     if @order.save
       flash[:success] = "The driver is on the way, please wait."
-      redirect_to user_path(session[:user_id])
+      redirect_to current_order_path(current_user)
     else
       flash[:danger] = "Whoops! Something, went wrong. #{@order.errors.messages}"
       redirect_to new_order_path

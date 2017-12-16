@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order]
-  before_action :correct_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order]
-  before_action :set_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay]
+  before_action :logged_in_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order, :orders_history]
+  before_action :correct_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :current_order, :orders_history]
+  before_action :set_user, only: [:show, :edit, :update, :topup_gopay, :update_gopay, :orders_history]
   before_action :user_params, only: [:create, :update, :update_gopay]
   before_action :set_current_order, only: [:current_order]
 
@@ -64,6 +64,11 @@ class UsersController < ApplicationController
 
   # GET /users/:user_id/orders/:order_id/on-process
   def current_order
+  end
+
+  # GET /users/:id/orders/
+  def orders_history
+    @user_orders = Order.joins(:user, :driver).where(user_id: @user.id).where(status: "Complete")
   end
 
   private

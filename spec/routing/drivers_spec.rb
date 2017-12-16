@@ -48,4 +48,10 @@ RSpec.describe "Drivers routing", type: :routing do
       expect(patch("/drivers/1/jobs/on-process")).to route_to("drivers#update_current_job", id: '1')
     end
   end
+
+  describe "GET /drivers/:id/jobs/" do
+    it "routes to drivers#jobs_index" do
+      expect(get("/drivers/1/jobs")).to route_to("drivers#jobs_history", id: '1')
+    end
+  end
 end

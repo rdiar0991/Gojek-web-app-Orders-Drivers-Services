@@ -421,4 +421,40 @@ RSpec.describe DriversController, type: :controller do
     end
   end
 
+  describe "GET #jobs_history" do
+    before :each do
+      @user = create(:user)
+      @another_user = create(:user)
+      @driver = create(:driver)
+      @another_driver = create(:driver)
+      @job1 = create(:order, user_id: @user.id, status: "Complete", driver_id: @driver.id)
+      @job2 = create(:order, user_id: @user.id, status: "Complete", driver_id: @driver.id)
+      @job3 = create(:order, user_id: @user.id, driver_id: @driver.id)
+      @job4 = create(:order, user_id: @another_user.id, status: "Complete", driver_id: @another_driver.id)
+    end
+
+    context "with authorized driver" do
+      before :each do
+        log_in_as @driver
+        get :jobs_history, params: { id: @driver.id }
+      end
+      it "collects all Complete jobs to @completed_driver_jobs" do
+        expect(assigns[:completed_driver_jobs]).to match_array([@job1, @job2])
+      end
+      it "renders the :jobs_history template" do
+        expect(response).to render_template :jobs_history
+      end
+    end
+
+    context "with unauthorized user" do
+      before :each do
+        log_in_as @another_driver
+        get :jobs_history, params: { id: @driver.id }
+      end
+      it "redirects to the profile page" do
+        expect(response).to redirect_to @another_driver
+      end
+    end
+  end
+
 end

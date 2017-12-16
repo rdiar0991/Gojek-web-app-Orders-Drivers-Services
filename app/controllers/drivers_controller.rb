@@ -1,7 +1,7 @@
 class DriversController < ApplicationController
-  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
-  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
-  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job]
+  before_action :logged_in_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job, :jobs_history]
+  before_action :correct_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job, :jobs_history]
+  before_action :set_driver, only: [:show, :edit, :update, :edit_location, :update_location, :edit_bid, :update_bid, :current_job, :update_current_job, :jobs_history]
   before_action :driver_params, only: [:create, :update, :update_location, :update_bid]
   before_action :set_current_job, only: [:current_job, :update_current_job]
   before_action :ensure_params_contains_complete, only: [:update_current_job]
@@ -75,6 +75,10 @@ class DriversController < ApplicationController
       redirect_to current_job_path
     end
 
+  end
+
+  def jobs_history
+    @completed_driver_jobs = Order.joins(:driver, :user).where(driver_id: @driver.id).where(status: "Complete")
   end
 
   private

@@ -1,0 +1,32 @@
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Go Service</th>
+        <th>User</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Distance</th>
+        <th>Price</th>
+        <th>Payment Type</th>
+        <th>Job status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @completed_driver_jobs.each do |job| %>
+      <tr>
+        <td><%= job.created_at %></td>
+        <td><%= job.service_type %></td>
+        <td><%= job.user.name %></td>
+        <td><%= job.origin %></td>
+        <td><%= job.destination %></td>
+        <td><%= job.distance %> km</td>
+        <td><%= job.price %></td>
+        <td><%= job.payment_type %></td>
+        <td><%= job.status %></td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

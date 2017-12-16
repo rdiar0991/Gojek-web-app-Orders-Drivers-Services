@@ -1,0 +1,14 @@
+<%= provide(:title, "Jobs History") %>
+<div class="row">
+  <h1>Your Jobs History</h1>
+  <% if @completed_driver_jobs.empty? %>
+  <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">Info</div>
+      <div class="panel-body"><p>You have no complete job yet. Try to go online and get a user.</p></div>
+    </div>
+  </div>
+    <% else %>
+      <%= render 'driver_jobs_history' %>
+    <% end %>
+</div>

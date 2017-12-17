@@ -2,7 +2,6 @@ class OrdersController < ApplicationController
   before_action :order_params, only: [:create, :commit_order]
   before_action :ensure_order_params_is_present, only: [:confirm_order]
 
-
   def new
     if logged_in?
       @order = Order.new
@@ -19,7 +18,7 @@ class OrdersController < ApplicationController
     @order.distance = gmaps_distance(distance_matrix)
     @order.price = est_price(@order)
     @order.status = "Looking for driver"
-    if logged_in? && @order.valid?
+    if logged_in? && @order.valid? && ensure_gopay_balance_is_sufficient
       render :confirm_order
     else
       render :new
@@ -31,8 +30,9 @@ class OrdersController < ApplicationController
 
   def commit_order
     @order = Order.new(order_params)
+    @order.user_id = current_user.id
     @order.status = "Looking for driver"
-    @order.user_id = session[:user_id]
+
 
     if @order.save
       FindDriverJob.perform_later(@order)
@@ -53,5 +53,14 @@ class OrdersController < ApplicationController
 
   def ensure_order_params_is_present
     redirect_to new_order_path if params[:order].nil?
+  end
+
+  def ensure_gopay_balance_is_sufficient
+    if @order.payment_type == "GoPay" && current_user.gopay_balance < @order.price
+      flash.now[:danger] = "Whoops, your gopay balance is not suffiecient. Try another payment type."
+      return false
+    else
+      return true
+    end
   end
 end

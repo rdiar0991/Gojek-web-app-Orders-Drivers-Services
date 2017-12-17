@@ -53,36 +53,30 @@ RSpec.describe OrdersController, type: :controller do
         expect(response).to render_template :new
       end
     end
+    context "with insufficient gopay balance" do
+      before :each do
+        get :create, params: { user_id: session[:user_id], order: attributes_for(:order, price: 10000.0, payment_type: "GoPay") }
+      end
+
+      it "re-renders the :new order" do
+        expect(response).to render_template :new
+      end
+      it "sets flash.now[:danger] message" do
+        expect(flash.now[:danger]).to match(/Whoops, your gopay balance is not suffiecient. Try another payment type./)
+      end
+    end
   end
 
   describe "POST #commit_order" do
     before :each do
       @user = create(:user)
-      # @driver_amer = create(:driver, bid_status: "Online", current_coord: "-6.188278899999999, 106.8180238")
-      # @driver_baehan = create(:driver, bid_status: "Online", current_coord: "-6.189052999999999, 106.8205542")
-      # @driver_kuroky = create(:driver, bid_status: "Online", current_coord: "-9.189052999999999, 103.8205542")
-      # @online_drivers = {@driver_amer.id => [-6.188278899999999, 106.8180238], @driver_baehan.id => [-6.189052999999999, 106.8205542], @driver_kuroky.id => [-9.189052999999999, 103.8205542]}
-      # @drivers_around = { @driver_amer.id => 92.70063515197491, @driver_baehan.id => 290.20402857808995 }
-      # @wisma_naelah_coord = [-6.1891073, 106.8179296] # {:lat=>-6.1891073, :lng=>106.8179296}
+      log_in_as @user
       @order = create(:order, user_id: @user.id, origin: "Wisma Naelah", destination: "Monas, Jakarta")
     end
     context "valid attributes" do
       before :each do
-        log_in_as @user
         post :commit_order, params: { user_id: @user.id, order: attributes_for(:order) }
       end
-
-      # Shall not pass due to ActiveJob implementation
-      #
-      # it "assigns[:origin_coordinates] to eq origin's corrdinates" do
-      #   expect(assigns[:origin_coordinates]).to eq(@wisma_naelah_coord)
-      # end
-      # it "collects the online drivers" do
-      #   expect(assigns[:online_drivers]).to eq(@online_drivers)
-      # end
-      # it "collects the drivers around user" do
-      #   expect(assigns[:driver_around_users]).to eq(@drivers_around)
-      # end
 
       it "assigns order's status to 'Looking for driver'" do
         expect(assigns[:order].status).to match(/Looking for driver/)

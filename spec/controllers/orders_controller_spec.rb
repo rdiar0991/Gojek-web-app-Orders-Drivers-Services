@@ -25,7 +25,7 @@ RSpec.describe OrdersController, type: :controller do
         get :new, params: { user_id: @user.id, order: attributes_for(:order) }
       end
       it "sets flash[:danger] message" do
-        expect(flash[:danger]).to match(/Can't create new one, you already have an active order./)
+        expect(flash[:danger]).to match(/You already have an active order, can't create new one./)
       end
       it "redirects to the current_order_path" do
         expect(response).to redirect_to current_order_path(@user)

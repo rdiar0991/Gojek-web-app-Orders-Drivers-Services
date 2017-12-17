@@ -1,15 +1,17 @@
-<%= provide(:title, "Set Bid Status") %>
+<%= provide(:title, "Set Bid and Location") %>
 <h1>Set Your Bid Status</h1>
 <div class="row">
   <div class="col-md-6 col-md-offset-3">
-    <p class="text-info">Current bid status: <%= @driver.bid_status %></p>
+    <p>Current bid status: <%= @driver.bid_status %></p>
+    <p>Current location: <%= @driver.current_location %></p>
     <span class="label label-info"></span>
     <%= form_for(@driver, url: update_bid_path) do |f| %>
       <%= render 'shared/driver_error_messages', object: @driver %>
       <%= f.label :new_bid_status %>
-      <%= f.select :bid_status, Driver.bid_statuses.keys, prompt: "Select a bid status" %>
-
-      <%= f.submit "Set Bid Status", class: "btn btn-success" %>
+      <%= f.select :bid_status, Driver.bid_statuses.keys.select{ |s| s != "Busy" }, prompt: "Select a bid status" %>
+      <%= f.label :new_location %>
+      <%= f.text_field :current_location, value: '', placeholder: "Please be spesific, eg: 'Sarinah Mall, Jakarta'", class: 'form-control' %>
+      <%= f.submit "Save", class: "btn btn-success" %>
     <% end %>
   </div>
 </div>

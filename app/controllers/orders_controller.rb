@@ -66,7 +66,9 @@ class OrdersController < ApplicationController
   end
 
   def redirect_if_user_already_have_active_order
-    flash[:danger] = "Can't create new one, you already have an active order."
-    redirect_to current_order_path(current_user) and return if current_user.orders.where("status == 2 OR status == 0").any?
+    if current_user.orders.where("status == 2 OR status == 0").any?
+      flash[:danger] = "You already have an active order, can't create new one."
+      redirect_to current_order_path(current_user) and return
+    end
   end
 end

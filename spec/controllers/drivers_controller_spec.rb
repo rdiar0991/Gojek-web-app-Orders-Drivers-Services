@@ -226,7 +226,7 @@ RSpec.describe DriversController, type: :controller do
       end
       context "with valid :current_location" do
         before :each do
-          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Sarinah, Jakarta") }
+          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Sarinah, Jakarta", bid_status: "Online") }
         end
         it "locates the requested @driver" do
 
@@ -245,7 +245,7 @@ RSpec.describe DriversController, type: :controller do
       end
       context "with invalid :current_location" do
         before :each do
-          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Lokasi yang tak diriundukan...Lul") }
+          patch :update_location, params: { id: @driver.id, driver: attributes_for(:driver, current_location: "Lokasi yang tak diriundukan...Lul", bid_status: "Online") }
         end
         it "does not update current_location in the database" do
           @driver.reload
@@ -302,6 +302,21 @@ RSpec.describe DriversController, type: :controller do
       end
     end
 
+    context "while driver has an active job" do
+      before :each do
+        @user = create(:user)
+        @order = create(:order, user_id: @user.id, driver_id: @driver.id, status: "On the way")
+        log_in_as @driver
+        get :edit_bid, params: { id: @driver.id }
+      end
+      it "redirects to the current_job_path" do
+        expect(response).to redirect_to current_job_path(@driver)
+      end
+      it "sets flash[:danger] message" do
+        expect(flash[:danger]).to match(/You can't edit your bid status while you have an active job./)
+      end
+    end
+
     context "with non-logged in and un-authorized driver" do
       it "redirects to the login page" do
         get :edit_bid, params: { id: @driver.id }
@@ -321,7 +336,7 @@ RSpec.describe DriversController, type: :controller do
         log_in_as @driver
       end
       context "with valid attributes" do
-        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online") } }
+        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online", current_location: "Monas, Jakarta") } }
         it "updates the driver's bid_status in the database" do
           @driver.reload
           expect(@driver.bid_status).to match(/Online/)
@@ -334,10 +349,10 @@ RSpec.describe DriversController, type: :controller do
         end
       end
       context "with invalid attributes" do
-        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:invalid_driver, bid_status: "Online") } }
+        before { patch :update_bid, params: { id: @driver.id, driver: attributes_for(:invalid_driver, bid_status: "Online", current_location: "") } }
         it "does not update the driver's bid status in the database" do
           @driver.reload
-          expect(@driver.bid_status).not_to match(/Dude/)
+          expect(@driver.bid_status).not_to match(/Online/)
         end
         it "has validation errors message" do
           expect(assigns[:driver].errors.count).not_to eq(0)
@@ -346,7 +361,55 @@ RSpec.describe DriversController, type: :controller do
           expect(response).to render_template :edit_bid
         end
       end
+
+      context "with bid status sets to Offline" do
+        before :each do
+          @driver.bid_status = "Online"
+          @driver.current_location = "Sarinah, Jakarta"
+          @driver.save
+          patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Offline", current_location: "Sarinah, Jakarta") }
+        end
+        it "updates the bid status equals 'Offline'" do
+          @driver.reload
+          expect(@driver.bid_status).to match(/Offline/)
+        end
+        it "re-set the driver's current location to nil" do
+          @driver.reload
+          expect(@driver.current_location).to eq(nil)
+        end
+        it "re-set the driver's current coordinates to nil" do
+          @driver.reload
+          expect(@driver.current_coord).to eq(nil)
+        end
+        it "redirects to the profile page" do
+          expect(response).to redirect_to @driver
+        end
+      end
+
+      context "with bid status sets to Online" do
+        before :each do
+          @driver.bid_status = "Offline"
+          @driver.save
+        end
+
+        it "updates the driver's bid status to 'Online'" do
+          patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online", current_location: "Sarinah, Jakarta") }
+          @driver.reload
+          expect(@driver.bid_status).to match(/Online/)
+        end
+        it "does not updates the attributes if location is invalid" do
+          patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online", current_location: "") }
+          @driver.reload
+          expect(@driver.bid_status).not_to match(/Online/)
+          expect(@driver.current_location).not_to match(//)
+        end
+        it "re-renders the :update_bid template" do
+          patch :update_bid, params: { id: @driver.id, driver: attributes_for(:driver, bid_status: "Online", current_location: "") }
+          expect(response).to render_template :edit_bid
+        end
+      end
     end
+
     context "with logged-in and un-authorized driver" do
       before :each do
         log_in_as @another_driver

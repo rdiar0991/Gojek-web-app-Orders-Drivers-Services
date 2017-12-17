@@ -6,6 +6,8 @@ FactoryBot.define do
     password_confirmation "whatapassword"
     sequence(:phone) { |n| "0812225556#{n}" }
     go_service "Go-Ride"
+    bid_status "Offline"
+    gopay_balance 0.0
   end
 
   factory :invalid_driver, parent: :driver do

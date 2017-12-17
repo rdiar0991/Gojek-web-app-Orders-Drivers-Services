@@ -5,6 +5,7 @@ class DriversController < ApplicationController
   before_action :driver_params, only: [:create, :update, :update_location, :update_bid]
   before_action :set_current_job, only: [:current_job, :update_current_job]
   before_action :ensure_params_contains_complete, only: [:update_current_job]
+  before_action :redirect_if_driver_already_have_active_job, only: [:edit_bid, :update_bid]
 
   def new
     @driver = Driver.new
@@ -53,7 +54,9 @@ class DriversController < ApplicationController
   end
 
   def update_bid
-    if @driver.update_attributes(driver_params)
+    @driver.bid_status = driver_params[:bid_status]
+    @driver.current_location = driver_params[:current_location] if driver_params[:bid_status] == "Online"
+    if @driver.save
       flash[:success] = "Your bid status was successfully updated."
       redirect_to @driver
     else
@@ -116,6 +119,13 @@ class DriversController < ApplicationController
 
   def ensure_params_contains_complete
     redirect_to current_job_path(@driver) unless params[:order][:status] == "Complete"
+  end
+
+  def redirect_if_driver_already_have_active_job
+    if current_user.orders.where("status == 2 OR status == 0").any?
+      flash[:danger] = "You can't edit your bid status while you have an active job."
+      redirect_to current_job_path(current_user) and return
+    end
   end
 
 end

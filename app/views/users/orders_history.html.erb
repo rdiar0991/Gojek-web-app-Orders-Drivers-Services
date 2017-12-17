@@ -5,7 +5,7 @@
     <div class="col-md-6 col-md-offset-3">
       <div class="panel panel-default">
         <div class="panel-heading">Info</div>
-        <div class="panel-body"><p>You have no complete order yet. Start your first order <%= link_to "here", new_order_path %>.</p></div>
+        <div class="panel-body"><p>You have no complete order yet. Start your first order <%= link_to "here", new_order_path(current_user) %>.</p></div>
       </div>
     </div>
       <% else %>

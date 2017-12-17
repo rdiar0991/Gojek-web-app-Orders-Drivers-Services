@@ -11,7 +11,8 @@ class Order < ApplicationRecord
     "Looking for driver" => 0,
     "Driver is on the way" => 1,
     "On the way" => 2,
-    "Complete" => 3
+    "Complete" => 3,
+    "Driver not found" => 4
   }
 
   validates :origin, presence: true

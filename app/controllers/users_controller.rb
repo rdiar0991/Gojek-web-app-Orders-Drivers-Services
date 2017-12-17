@@ -68,7 +68,7 @@ class UsersController < ApplicationController
 
   # GET /users/:id/orders/
   def orders_history
-    @user_orders = Order.joins(:user, :driver).where(user_id: @user.id).where(status: "Complete")
+    @user_orders = Order.joins(:user, :driver).where(user_id: @user.id).where("status == 3 OR status == 4")
   end
 
   private

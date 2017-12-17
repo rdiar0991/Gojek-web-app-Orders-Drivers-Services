@@ -8,13 +8,28 @@ RSpec.describe OrdersController, type: :controller do
   describe "GET #new" do
     before :each do
       log_in_as @user
-      get :new, params: { user_id: session[:user_id], order: attributes_for(:order) }
     end
-    it "renders the :new order template" do
-      expect(response).to render_template(:new)
+    context "user have no an active order" do
+      before { get :new, params: { user_id: @user.id, order: attributes_for(:order) } }
+      it "renders the :new order template" do
+        expect(response).to render_template(:new)
+      end
+      it "assigns order to be a new Order" do
+        expect(assigns[:order]).to be_a_new(Order)
+      end
     end
-    it "assigns order to be a new Order" do
-      expect(assigns[:order]).to be_a_new(Order)
+    context "user already have an active order" do
+      before :each do
+        @driver = create(:driver)
+        @order = create(:order, user_id: @user.id, status: "On the way", driver_id: @driver.id)
+        get :new, params: { user_id: @user.id, order: attributes_for(:order) }
+      end
+      it "sets flash[:danger] message" do
+        expect(flash[:danger]).to match(/Can't create new one, you already have an active order./)
+      end
+      it "redirects to the current_order_path" do
+        expect(response).to redirect_to current_order_path(@user)
+      end
     end
   end
 

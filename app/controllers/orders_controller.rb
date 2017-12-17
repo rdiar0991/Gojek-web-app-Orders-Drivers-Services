@@ -1,6 +1,7 @@
 class OrdersController < ApplicationController
   before_action :order_params, only: [:create, :commit_order]
   before_action :ensure_order_params_is_present, only: [:confirm_order]
+  before_action :redirect_if_user_already_have_active_order, only: [:new]
 
   def new
     if logged_in?
@@ -62,5 +63,10 @@ class OrdersController < ApplicationController
     else
       return true
     end
+  end
+
+  def redirect_if_user_already_have_active_order
+    flash[:danger] = "Can't create new one, you already have an active order."
+    redirect_to current_order_path(current_user) and return if current_user.orders.where("status == 2 OR status == 0").any?
   end
 end

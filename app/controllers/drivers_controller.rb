@@ -86,7 +86,7 @@ class DriversController < ApplicationController
   end
 
   def jobs_history
-    @completed_driver_jobs = Order.joins(:driver, :user).where(driver_id: @driver.id).where(status: "Complete")
+    @completed_driver_jobs = Order.joins(:driver, :user).where(driver_id: @driver.id).where(status: "Complete").order(created_at: :desc)
   end
 
   private
@@ -114,7 +114,7 @@ class DriversController < ApplicationController
 
   def set_current_job
     @job = @driver.orders.find_by(status: "On the way")
-    @user_id, @name_of_user = User.pluck(:id, :name).select { |id, name| id == @job.user_id }.flatten unless @job.nil?
+    @user_id, @user_phone, @name_of_user = User.pluck(:id, :phone, :name).select { |id, phone, name| id == @job.user_id }.flatten unless @job.nil?
   end
 
   def ensure_params_contains_complete

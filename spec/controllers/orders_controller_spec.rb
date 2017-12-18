@@ -68,6 +68,32 @@ RSpec.describe OrdersController, type: :controller do
         expect(response).to render_template :new
       end
     end
+
+    context "with un-calculated locations" do
+      before :each do
+        get :create, params: { user_id: session[:user_id], order: attributes_for(:order, origin: "I dont know where is this", destination: "Wisma NAELAH") }
+      end
+
+      it "sets flash[:danger] message" do
+        expect(flash[:danger]).to match(/Orign or destination address not found. Perhaps, you just misspelled it./)
+      end
+      it "redirects to the new_order_path" do
+        expect(response).to redirect_to new_order_path(session[:user_id])
+      end
+    end
+
+    context "with distance trip more than max" do
+      before :each do
+        get :create, params: { user_id: session[:user_id], order: attributes_for(:order, origin: "Cilsy Fiolution, Bandung", destination: "Wisma NAELAH, Jakarta") }
+      end
+      it "sets flash[:danger] message" do
+        expect(flash.now[:danger]).to eq("The trip distance is too far (max: 20 km).")
+      end
+      it "re-renders the :new order template" do
+        expect(response).to render_template :new
+      end
+    end
+
     context "with insufficient gopay balance" do
       before :each do
         get :create, params: { user_id: session[:user_id], order: attributes_for(:order, price: 10000.0, payment_type: "GoPay") }

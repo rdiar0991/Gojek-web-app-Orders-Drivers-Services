@@ -68,7 +68,7 @@ class UsersController < ApplicationController
 
   # GET /users/:id/orders/
   def orders_history
-    @user_orders = Order.joins(:user, :driver).where(user_id: @user.id).where("status == 3 OR status == 4")
+    @user_orders = Order.joins(:user, :driver).where(user_id: @user.id).where("status == 3 OR status == 4").order(created_at: :desc)
   end
 
   private
@@ -96,7 +96,15 @@ class UsersController < ApplicationController
   end
 
   def set_current_order
-    @order = @user.orders.where("status != 3").last
-    @driver_id, @driver_name = Driver.pluck(:id, :name).select { |id, name| id == @order.driver_id }.flatten unless @order.nil?
+    @order = @user.orders.last
+    if @order.status == "Complete"
+      @order = nil
+    elsif @order.status == "Driver not found"
+      @driver_id = nil
+      @driver_name = nil
+    else
+      # @order = @user.orders.where("status == 0 OR status == 2").last
+      @driver_id, @driver_name = Driver.pluck(:id, :name).select { |id, name| id == @order.driver_id }.flatten unless @order.nil? unless @order.nil?
+    end
   end
 end

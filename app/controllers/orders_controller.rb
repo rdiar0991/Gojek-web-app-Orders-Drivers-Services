@@ -2,6 +2,7 @@ class OrdersController < ApplicationController
   before_action :order_params, only: [:create, :commit_order]
   before_action :ensure_order_params_is_present, only: [:confirm_order]
   before_action :redirect_if_user_already_have_active_order, only: [:new]
+  before_action :ensure_locations_can_be_calculated, only:[:create]
 
   def new
     if logged_in?
@@ -15,13 +16,17 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     @order.user_id = session[:user_id]
-    distance_matrix = google_distance_matrix(@order)
-    @order.distance = gmaps_distance(distance_matrix)
-    @order.price = est_price(@order)
+    @order.distance = gmaps_distance(@distance_matrix)
+    if @order.distance.nil? || distance_is_greater_than_max?(@order)
+      @order.price = nil
+    else
+      @order.price = est_price(@order)
+    end
     @order.status = "Looking for driver"
     if logged_in? && @order.valid? && ensure_gopay_balance_is_sufficient
       render :confirm_order
     else
+      flash.now[:danger] = "The trip distance is too far (max: 20 km)." if distance_is_greater_than_max?(@order)
       render :new
     end
   end
@@ -70,5 +75,17 @@ class OrdersController < ApplicationController
       flash[:danger] = "You already have an active order, can't create new one."
       redirect_to current_order_path(current_user) and return
     end
+  end
+
+  def ensure_locations_can_be_calculated(origin=order_params[:origin], destination=order_params[:destination])
+    return nil if (origin.empty? || destination.empty?)
+    @distance_matrix = google_distance_matrix(origin, destination)
+    if @distance_matrix[:rows][0][:elements][0][:status] == "NOT_FOUND"
+      flash[:danger] = "Orign or destination address not found. Perhaps, you just misspelled it."
+      redirect_to new_order_path and return
+    else
+      @distance_matrix
+    end
+
   end
 end

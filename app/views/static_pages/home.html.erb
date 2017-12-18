@@ -5,9 +5,13 @@
   <h2>
     Final project of Go Scholar Tech Ruby on Rails sponsored by <a href="#">Go-JEK</a> and <a href="#">Kolla-Edu</a>.
   </h2>
-  <%= link_to "Sign up now!", user_signup_path, class: "btn btn-lg btn-success" %>
+  <p>
+    <%= link_to image_tag("gojek-logo.png", alt: "Gojek Logo"), 'https://www.go-jek.com/', class: "img-responsive" %>
+  </p>
+  <%= link_to "Sign up now!", user_signup_path, class: "btn btn-lg btn-success" unless current_user %>
 </div>
 
 <%= link_to image_tag("rails.png", alt: "Rails logo"),
-            'http://rubyonrails.org/' %>
-<%# link_to image_tag("GO-JEK_Logo.jpg", alt: "Gojek Logo"), 'https://www.go-jek.com/' %>
+            'http://rubyonrails.org/', class: "img-responsive" %>
+<!-- <%= link_to image_tag("kolla-space.png", alt: "Kolla Logo"),
+                        'https://kollaspace.com/', class: "img-responsive" %> -->

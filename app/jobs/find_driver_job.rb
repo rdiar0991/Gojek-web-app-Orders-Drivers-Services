@@ -2,12 +2,19 @@ class FindDriverJob < ApplicationJob
   queue_as :default
 
   def perform(order)
-    sleep(10)   # Biar kerasa ada delay
+    picked_driver_id = nil
+    sleep(10)   # Delay for simulation
 
     origin_coordinates = gmaps_geocode(order.origin)
+
     online_drivers = fetch_online_drivers(order.service_type)
-    driver_around_users = drivers_around(online_drivers, origin_coordinates)
-    picked_driver_id = lucky_driver(driver_around_users)   # ntar ganti
+
+    unless online_drivers.nil?
+      formatted_online_drivers = format_online_drivers_to_hash(online_drivers)
+      drivers_around_user = drivers_around(formatted_online_drivers, origin_coordinates)
+      picked_driver_id = get_driver_by_last_job_date(drivers_around_user)
+    end
+
     if picked_driver_id.nil?
       order.status = "Driver not found"
       order.save

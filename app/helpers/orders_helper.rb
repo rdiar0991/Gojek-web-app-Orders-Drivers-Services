@@ -37,18 +37,25 @@ module OrdersHelper
   end
 
   def fetch_online_drivers(service_type)
-    online_drivers_hash = {}
-    online_drivers = Driver.where(go_service: service_type).where(bid_status: "Online").pluck(:id, :current_coord)
-    online_drivers.each { |id, coords| online_drivers_hash[id] = coords }
-    online_drivers_hash.map { |id, coord| online_drivers_hash[id] = coord.split(", ").map { |coord| coord.to_f } }
-    online_drivers_hash
+    online_drivers = Driver.where(go_service: service_type).where(bid_status: "Online").where("current_coord != 'N/A'")
+    online_drivers.empty? ? nil : online_drivers
   end
 
-  def drivers_around(online_drivers, origin)
+  def format_online_drivers_to_hash(online_drivers)
+    return nil if online_drivers.nil?
+
+    formatted_online_drivers = {}
+    online_drivers.each { |driver| formatted_online_drivers[driver.id] = { coords: driver.current_coord.split(", ").map { |c| c.to_f }, last_job_date: driver.orders.empty? ? nil : driver.orders.last.created_at } }
+    formatted_online_drivers
+  end
+
+  def drivers_around(formatted_online_drivers, origin)
+    return nil if formatted_online_drivers.nil? || origin.nil?
     nearer_drivers = {}
-    online_drivers.each do |driver_id, coords|
-      driver_distance_from_origin = haversine_formula(origin, coords)
-      nearer_drivers[driver_id] = driver_distance_from_origin if driver_distance_from_origin <= MAX_DRIVER_DISTANCE_FROM_USER_IN_METER
+
+    formatted_online_drivers.each do |driver_id, attributes|
+      driver_distance_from_origin = haversine_formula(origin, attributes[:coords])
+      nearer_drivers[driver_id] = { distance: driver_distance_from_origin, last_job_date: attributes[:last_job_date] } if driver_distance_from_origin <= MAX_DRIVER_DISTANCE_FROM_USER_IN_METER
     end
     nearer_drivers
   end
@@ -70,8 +77,21 @@ module OrdersHelper
     rm * c # Delta in meters
   end
 
-  def lucky_driver(drivers)
-    drivers.keys.sample
+  def get_driver_by_last_job_date(drivers)
+    picked_driver_id = nil
+    id_date_hsh = {}
+    drivers.each do |id, attributes|
+      if attributes[:last_job_date].nil?
+        return id
+      else
+        id_date_hsh[id] = attributes[:last_job_date]
+      end
+    end
+    id_date_hsh.sort_by { |id, date| date }.first.first
+  end
+
+  def get_lucky_driver(drivers)
+    driver.keys.sample
   end
 
   private
@@ -79,6 +99,4 @@ module OrdersHelper
   def gmaps_service
     GoogleMapsService::Client.new(key: 'AIzaSyAT3fcxh_TKujSW6d6fP9cUtrexk0eEvAE')
   end
-
-
 end

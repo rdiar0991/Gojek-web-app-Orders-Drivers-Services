@@ -45,6 +45,13 @@ Rails.application.routes.draw do
   # Order History
   get '/users/:id/orders', to: 'users#orders_history', as: 'orders_history'
 
+  # Orders API
+  namespace :api, defaults: { format: :json } do
+     namespace :v1 do
+       resources :orders
+     end
+   end
+
   # Job History
   get '/drivers/:id/jobs', to: 'drivers#jobs_history', as: 'jobs_history'
 

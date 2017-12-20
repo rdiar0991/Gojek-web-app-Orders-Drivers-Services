@@ -1,9 +1,5 @@
 class Api::V1::OrdersController < ApplicationController
   skip_before_action :verify_authenticity_token
-  # before_action :order_params, only: [:create, :commit_order]
-  # before_action :ensure_order_params_is_present, only: [:confirm_order]
-  # before_action :redirect_if_user_already_have_active_order, only: [:new]
-  # before_action :ensure_locations_can_be_calculated, only:[:create]
   before_action :params_for_new_order, only: [:new]
   before_action :set_user, only: [:new]
 
@@ -25,7 +21,6 @@ class Api::V1::OrdersController < ApplicationController
     @order = Order.new(params_for_new_order)
 
     @order.distance = gmaps_distance(ensure_locations_can_be_calculated(@order.origin, @order.destination))
-
     if @order.distance.nil?
       error_messages[:distance] = "Origin or destination location is not found."
     else
@@ -34,7 +29,7 @@ class Api::V1::OrdersController < ApplicationController
     end
 
     error_messages[:distance] = "Trip distance is too far (maximum is 20 km)." if distance_is_greater_than_max?(@order)
-
+    
     respond_to do |format|
       if error_messages.none?
         format.json { render json: @order, status: :ok  }
@@ -60,50 +55,16 @@ class Api::V1::OrdersController < ApplicationController
   def create
     @order = Order.new(params_for_new_order)
     @order.status = "Looking for driver"
-    @order.save
-    FindDriverJob.perform_later(@order)
+
     respond_to do |format|
-      format.json { render json: @order, status: :created  }
+      if @order.save
+        FindDriverJob.perform_later(@order)
+        format.json { render json: @order, status: :created  }
+      else
+        format.json { render json: @order, status: :unprocessable_entity }
+      end
     end
   end
-
-  # def create
-  #   # @order = Order.new(order_params)
-  #   # @order.user_id = session[:user_id]
-  #   # @order.distance = gmaps_distance(@distance_matrix)
-  #   # if @order.distance.nil? || distance_is_greater_than_max?(@order)
-  #   #   @order.price = nil
-  #   # else
-  #   #   @order.price = est_price(@order)
-  #   # end
-  #   # @order.status = "Looking for driver"
-  #   # if logged_in? && @order.valid? && ensure_gopay_balance_is_sufficient
-  #   #   render :confirm_order
-  #   # else
-  #   #   flash.now[:danger] = "The trip distance is too far (max: 20 km)." if distance_is_greater_than_max?(@order)
-  #   #   render :new
-  #   # end
-  # end
-  #
-  # def confirm_order
-  # end
-  #
-  # def commit_order
-  #   # @order = Order.new(order_params)
-  #   # @order.user_id = current_user.id
-  #   # @order.status = "Looking for driver"
-  #   #
-  #   #
-  #   # if @order.save
-  #   #   FindDriverJob.perform_later(@order)
-  #   #
-  #   #   flash[:success] = "Finding the nearest driver, please wait."
-  #   #   redirect_to current_order_path(current_user)
-  #   # else
-  #   #   flash[:danger] = "Whoops! Something, went wrong. #{@order.errors.messages}"
-  #   #   redirect_to new_order_path
-  #   # end
-  # end
 
   private
 

@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new'
   post '/login', to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
+  get '/login/driver', to: 'sessions#driver_login'
+  post '/login/driver', to: 'sessions#new'
 
   # Gopay topup routes
   get '/users/:id/topup', to: 'users#topup_gopay', as: 'topup_gopay'

@@ -14,6 +14,10 @@ class SessionsController < ApplicationController
     end
   end
 
+  def driver_login
+    redirect_back_or root_path if logged_in?
+  end
+
   def destroy
     log_out
     redirect_to root_path

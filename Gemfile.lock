@@ -246,6 +246,7 @@ DEPENDENCIES
   rails-controller-testing
   rspec-rails (~> 3.5)
   rspec_junit_formatter
+  ruby-kafka
   sass-rails (~> 5.0)
   shoulda-matchers (~> 3.1)
   spring

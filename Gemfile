@@ -13,6 +13,7 @@ gem 'google_maps_service'
 gem 'bcrypt', '3.1.11'
 gem 'active_model_serializers'
 gem 'racecar'
+gem 'ruby-kafka'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3'
 # Use Puma as the app server

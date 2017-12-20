@@ -30,6 +30,10 @@ class FindDriverJob < ApplicationJob
       user = User.find_by(id: order.user_id)
       user.gopay_balance -= order.price
       user.save
+
+      gopay_attributes = { id: user.id, gopay_balance: user.gopay_balance }
+      $kafka_producer.produce(gopay_attributes.to_json, topic: "gopay-update")
+
       picked_driver.gopay_balance += order.price
     end
 

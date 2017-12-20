@@ -5,6 +5,7 @@ class Api::V1::OrdersController < ApplicationController
   # before_action :redirect_if_user_already_have_active_order, only: [:new]
   # before_action :ensure_locations_can_be_calculated, only:[:create]
   before_action :params_for_new_order, only: [:new]
+  before_action :set_user, only: [:new]
 
   def index
     if params[:user_id]
@@ -20,11 +21,26 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def new
+    error_messages = {}
     @order = Order.new(params_for_new_order)
+
     @order.distance = gmaps_distance(ensure_locations_can_be_calculated(@order.origin, @order.destination))
-    @order.price = est_price(@order)
+
+    if @order.distance.nil?
+      error_messages[:distance] = "Origin or destination location is not found."
+    else
+      @order.price = est_price(@order)
+      error_messages[:gopay_balance] = "Your gopay balance is not suffiecient." if is_gopay?(@order.payment_type) && insufficient_gopay_balance?(@user, @order.price)
+    end
+
+    error_messages[:distance] = "Trip distance is too far (maximum is 20 km)." if distance_is_greater_than_max?(@order)
+
     respond_to do |format|
-      format.json { render json: @order, status: :ok  }
+      if error_messages.none?
+        format.json { render json: @order, status: :ok  }
+      else
+        format.json { render json: error_messages.to_json, status: :ok }
+      end
     end
   end
 
@@ -90,6 +106,10 @@ class Api::V1::OrdersController < ApplicationController
   # end
 
   private
+
+  def set_user
+    @user = User.find(params[:user_id])
+  end
 
   def params_for_new_order
     params.permit(:origin, :destination, :payment_type, :service_type, :user_id, :price, :distance)

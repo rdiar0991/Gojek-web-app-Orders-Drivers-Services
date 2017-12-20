@@ -27,6 +27,14 @@ module OrdersHelper
     order.distance > MAX_TRIP_DISTANCE_IN_KM
   end
 
+  def is_gopay?(payment_type)
+    payment_type == 'GoPay'
+  end
+
+  def insufficient_gopay_balance?(user, price)
+    user.gopay_balance < price
+  end
+
   def gmaps_geocode(location)
     reutn nil if location.nil?
     gmaps = gmaps_service

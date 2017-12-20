@@ -1,8 +1,10 @@
 class Api::V1::OrdersController < ApplicationController
+  skip_before_action :verify_authenticity_token
   # before_action :order_params, only: [:create, :commit_order]
   # before_action :ensure_order_params_is_present, only: [:confirm_order]
   # before_action :redirect_if_user_already_have_active_order, only: [:new]
   # before_action :ensure_locations_can_be_calculated, only:[:create]
+  before_action :params_for_new_order, only: [:new]
 
   def index
     if params[:user_id]
@@ -18,10 +20,35 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   def new
-    @order = Order.new
+    @order = Order.new(params_for_new_order)
+    @order.distance = gmaps_distance(ensure_locations_can_be_calculated(@order.origin, @order.destination))
+    @order.price = est_price(@order)
+    respond_to do |format|
+      format.json { render json: @order, status: :ok  }
+    end
   end
 
   def show
+    if params[:user_id]
+      @user = User.find(params[:user_id])
+      @order = @user.orders.last
+      @order = nil if @order.status == 'Complete'
+      respond_to do |format|
+        format.json { render json: @order, status: :ok }
+      end
+    else
+      head :no_content
+    end
+  end
+
+  def create
+    @order = Order.new(params_for_new_order)
+    @order.status = "Looking for driver"
+    @order.save
+    FindDriverJob.perform_later(@order)
+    respond_to do |format|
+      format.json { render json: @order, status: :created  }
+    end
   end
 
   # def create
@@ -64,6 +91,10 @@ class Api::V1::OrdersController < ApplicationController
 
   private
 
+  def params_for_new_order
+    params.permit(:origin, :destination, :payment_type, :service_type, :user_id, :price, :distance)
+  end
+
   def order_params
     params.require(:order).permit(:origin, :destination, :payment_type, :service_type, :price, :distance)
   end
@@ -92,8 +123,7 @@ class Api::V1::OrdersController < ApplicationController
     return nil if (origin.empty? || destination.empty?)
     @distance_matrix = google_distance_matrix(origin, destination)
     if @distance_matrix[:rows][0][:elements][0][:status] == "NOT_FOUND"
-      flash[:danger] = "Orign or destination address not found. Perhaps, you just misspelled it."
-      redirect_to new_order_path and return
+      @order.distance = nil
     else
       @distance_matrix
     end

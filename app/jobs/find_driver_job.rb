@@ -12,7 +12,7 @@ class FindDriverJob < ApplicationJob
     unless online_drivers.nil?
       formatted_online_drivers = format_online_drivers_to_hash(online_drivers)
       drivers_around_user = drivers_around(formatted_online_drivers, origin_coordinates)
-      picked_driver_id = get_driver_by_last_job_date(drivers_around_user)
+      picked_driver_id = get_driver_by_last_job_date(drivers_around_user) unless (drivers_around_user.nil? || drivers_around_user.empty?)
     end
 
     if picked_driver_id.nil?
@@ -20,6 +20,7 @@ class FindDriverJob < ApplicationJob
       order.save
       return nil
     end
+
       picked_driver = Driver.find_by(id: picked_driver_id)
       order.driver_id = picked_driver.id
       picked_driver.bid_status = "Busy"
@@ -31,6 +32,7 @@ class FindDriverJob < ApplicationJob
       user.save
       picked_driver.gopay_balance += order.price
     end
+
     picked_driver.save
     order.save
   end

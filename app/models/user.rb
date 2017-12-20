@@ -15,4 +15,8 @@ class User < ApplicationRecord
   def downcase_email
     self.email = email.downcase if !email.nil?
   end
+
+  def is_enough_gopay_balance?(order_price)
+    self.gopay_balance > order_price
+  end
 end

@@ -78,6 +78,7 @@ module OrdersHelper
   end
 
   def get_driver_by_last_job_date(drivers)
+    return nil if drivers.nil?
     picked_driver_id = nil
     id_date_hsh = {}
     drivers.each do |id, attributes|
